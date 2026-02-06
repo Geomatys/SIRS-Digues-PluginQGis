@@ -927,11 +927,10 @@ class CouchdbImporter:
         else:
             database_crs = "EPSG:2154"
 
-        source_crs = QgsCoordinateReferenceSystem("EPSG:2154") # todo not sur how to be sure that all coordinates are by default is in 2154
         simple_message(self.iface, "Database crs "+database_crs, Qgis.MessageLevel.Warning)
-        target_crs = QgsCoordinateReferenceSystem(database_crs)
-
-        qgs_coordinate_transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
+        # The CRS stored in "epsgCode" is the CRS used for the coordinates in the database.
+        # This CRS is set at the database initialization and cannot be modified.
+        base_crs = QgsCoordinateReferenceSystem(database_crs)
 
         for data in self.loadedPositionable:
             try:
@@ -972,8 +971,6 @@ class CouchdbImporter:
                 # build layer if not exist
                 if className not in allLayers:
                     allLayers[className] = {}
-                # convert geom in database's crs
-                geom.transform(qgs_coordinate_transform)
                 if typ not in allLayers[className]:
                     layerBuild = self.provider.build_layer(className, geom, database_crs, self.data)
                     if layerBuild is None:
@@ -985,13 +982,10 @@ class CouchdbImporter:
                 layer = currentLayer
                 layer_crs = layer.crs()
                 # 'Anomalie'#7940 : if the imported layer already exists ; reuse the layer's crs.
-                if layer_crs is not None and layer_crs != target_crs:
+                if layer_crs is not None and layer_crs != base_crs:
                     self.simple_message("Database crs is different from the crs of the existing layer. Keep the layer's crs to avoid recomputing all geometries.", Qgis.Warning)
-                    layer_transform = QgsCoordinateTransform(source_crs, layer_crs, QgsProject.instance())
+                    layer_transform = QgsCoordinateTransform(base_crs, layer_crs, QgsProject.instance())
                     geom.transform(layer_transform)
-                else:
-                    # convert geom in layer's crs
-                    geom.transform(qgs_coordinate_transform)
             if layer is None:
                 print(className)
                 print(currentLayer)
