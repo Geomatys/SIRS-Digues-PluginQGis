@@ -6,7 +6,7 @@
 name=Importation BdD SIRS Digues
 qgisMinimumVersion=3.4
 description=This plugin allows importing vector data from the couchdb database.
-version=1.8
+version=1.9
 author=MaximeGavens/Geomatys
 email=contact@geomatys.com
 
@@ -44,4 +44,3 @@ Category of the plugin: Raster, Vector, Database or Web
 
 # If the plugin can run on QGIS Server.
 server=False
-
