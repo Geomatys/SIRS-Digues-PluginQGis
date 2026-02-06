@@ -9,7 +9,8 @@ package:
     # Install ZIP package
     - apk add zip
     # Build and push
-    - zip -r couchdb_importer_$CI_COMMIT_REF_NAME.zip ./couchdb_importer
+    - ZIP_NAME="couchdb_importer_${CI_COMMIT_REF_NAME//\//_}.zip"
+    - zip -r "$ZIP_NAME" ./couchdb_importer
   artifacts:
     paths:
       - "*.zip"
